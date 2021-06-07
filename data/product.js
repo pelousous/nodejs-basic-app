@@ -1,0 +1,1 @@
+[{"title":"product 1","imageUrl":"https://www.publicdomainpictures.net/pictures/10000/velka/1-1210009435EGmE.jpg","description":"This is a good book","price":"9"},{"title":"product 2","imageUrl":"https://www.publicdomainpictures.net/pictures/10000/velka/1-1210009435EGmE.jpg","description":"This is a very good book","price":"9.99"}]
