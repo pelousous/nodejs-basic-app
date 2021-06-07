@@ -13,7 +13,7 @@ const getProductsFromFile = (cb) => {
 };
 
 module.exports = class Product {
-  save(title, imageUrl, description, price) {
+  save(title, imageUrl, price, description) {
     getProductsFromFile((products) => {
       products.push({
         title: title,
