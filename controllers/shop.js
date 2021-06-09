@@ -23,6 +23,17 @@ const getProducts = (req, res, next) => {
     });
 }
 
+const getProduct = (req, res, next) => {
+    const id = req.params.productId;
+    const products = Product.fetchById(id,( product) => {
+        res.render('shop/product-detail', {
+            product: product,
+            pageTitle: 'Product detail',
+            path: 'products'
+        })
+    })
+}
+
 const getCart = (req, res, next) => {
     res.render('shop/cart', {
         pageTitle: 'Cart',
@@ -47,6 +58,7 @@ const getCheckout = (req, res, next) => {
 
 module.exports = {
     getProducts,
+    getProduct,
     getIndex,
     getCart,
     getOrders,
