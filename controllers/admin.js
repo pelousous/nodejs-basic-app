@@ -10,12 +10,14 @@ const getAddProduct = (req, res, next) => {
 };
 
 const postAddProduct = (req, res, next) => {
-  const product = new Product();
-  const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
-  const description = req.body.description;
-  const price = req.body.price;
-  product.save(null, title, imageUrl, price, description);
+  console.log(req.body);
+  const product = new Product(
+    (title = req.body.title),
+    (imageUrl = req.body.imageUrl),
+    (price = req.body.price),
+    (description = req.body.description.trim())
+  );
+  product.save(product);
   res.redirect("/");
 };
 
@@ -56,7 +58,8 @@ const getProducts = (req, res, next) => {
 
 const postDeleteProduct = (req, res, next) => {
   const productId = req.body.productId;
-  Product.deleteById(productId);
+  const price = req.body.price;
+  Product.deleteById(productId, price);
   res.redirect("/admin/products");
 };
 

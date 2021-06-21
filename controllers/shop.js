@@ -2,7 +2,7 @@ const Product = require("../models/product");
 const Cart = require("../models/cart");
 
 const getIndex = (req, res, next) => {
-  const products = Product.fetchAll((products) => {
+  const products = Product.fetchAll().then((products) => {
     res.render("shop/index", {
       prods: products,
       pageTitle: "Shop",
@@ -13,14 +13,15 @@ const getIndex = (req, res, next) => {
 
 const getProducts = (req, res, next) => {
   const products = Product.fetchAll((products) => {
-    res.render("shop/product-list", {
-      prods: products,
-      pageTitle: "All Products",
-      path: "/products",
-      hasProducts: products.length > 0,
-      activeShop: true,
-      productCSS: true,
-    });
+    console.log(products);
+    // res.render("shop/product-list", {
+    //   prods: products,
+    //   pageTitle: "All Products",
+    //   path: "/products",
+    //   hasProducts: products.length > 0,
+    //   activeShop: true,
+    //   productCSS: true,
+    // });
   });
 };
 
@@ -36,9 +37,24 @@ const getProduct = (req, res, next) => {
 };
 
 const getCart = (req, res, next) => {
-  res.render("shop/cart", {
-    pageTitle: "Cart",
-    path: "/cart",
+  let cartProducts = [];
+  Cart.getCart((cart) => {
+    Product.fetchAll((products) => {
+      products.map((p) => {
+        const prodFound = cart.products.find((el) => el.id === p.id);
+        if (prodFound) {
+          cartProducts.push({
+            productData: p,
+            qty: prodFound.qty,
+          });
+        }
+      });
+      res.render("shop/cart", {
+        pageTitle: "Cart",
+        path: "/cart",
+        products: cartProducts,
+      });
+    });
   });
 };
 
@@ -62,6 +78,13 @@ const getCheckout = (req, res, next) => {
   });
 };
 
+const postCartDeleteItem = (req, res, next) => {
+  const id = req.body.productId;
+  const price = req.body.price;
+  Cart.deleteProduct(id, price);
+  res.redirect("/cart");
+};
+
 module.exports = {
   getProducts,
   getProduct,
@@ -70,4 +93,5 @@ module.exports = {
   postCart,
   getOrders,
   getCheckout,
+  postCartDeleteItem,
 };
