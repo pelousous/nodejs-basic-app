@@ -25,7 +25,7 @@ const getEditProduct = (req, res, next) => {
   const isEditing = req.query.edit;
   const productId = req.params.productId;
 
-  Product.fetchById(productId, (product) => {
+  Product.fetchById(productId).then((product) => {
     res.render("admin/edit-product", {
       pageTitle: "Edit product",
       path: "admin/edit-product",
@@ -36,18 +36,20 @@ const getEditProduct = (req, res, next) => {
 };
 
 const postEditProduct = (req, res, next) => {
-  const product = new Product();
-  const id = req.body.productId;
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
-  const description = req.body.description;
   const price = req.body.price;
-  product.save(id, title, imageUrl, price, description);
+  const description = req.body.description;
+  const id = req.body.productId;
+
+  const product = new Product(title, imageUrl, price, description, id);
+
+  product.save();
   res.redirect("/admin/products");
 };
 
 const getProducts = (req, res, next) => {
-  const products = Product.fetchAll((products) => {
+  const products = Product.fetchAll().then((products) => {
     res.render("admin/products", {
       prods: products,
       pageTitle: "All Products",

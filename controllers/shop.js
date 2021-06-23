@@ -12,22 +12,18 @@ const getIndex = (req, res, next) => {
 };
 
 const getProducts = (req, res, next) => {
-  const products = Product.fetchAll((products) => {
-    console.log(products);
-    // res.render("shop/product-list", {
-    //   prods: products,
-    //   pageTitle: "All Products",
-    //   path: "/products",
-    //   hasProducts: products.length > 0,
-    //   activeShop: true,
-    //   productCSS: true,
-    // });
+  const products = Product.fetchAll().then((products) => {
+    res.render("shop/index", {
+      prods: products,
+      pageTitle: "All Products",
+      path: "/products",
+    });
   });
 };
 
 const getProduct = (req, res, next) => {
   const id = req.params.productId;
-  const products = Product.fetchById(id, (product) => {
+  const product = Product.fetchById(id).then((product) => {
     res.render("shop/product-detail", {
       product: product,
       pageTitle: "Product detail",

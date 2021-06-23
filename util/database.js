@@ -4,7 +4,7 @@ let _db;
 
 const mongoConnect = (cb) => {
   const uri =
-    "mongodb+srv://dxxxxxxxxxxo:pxxxx5@cluster0.ijrdt.mongodb.net/nxxxxxxxxxs?retryWrites=true&w=majority";
+    "mongodb+srv://davidepelo:pelosone75@cluster0.ijrdt.mongodb.net/node-tuts?retryWrites=true&w=majority";
 
   MongoClient.connect(uri, { useUnifiedTopology: true })
     .then((client) => {
