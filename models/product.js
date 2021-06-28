@@ -7,7 +7,7 @@ module.exports = class Products {
     this.imageUrl = imageUrl;
     this.description = description;
     this.price = price;
-    this._id = new ObjectId(id);
+    this._id = id ? new ObjectId(id) : null;
   }
 
   save() {
@@ -15,7 +15,6 @@ module.exports = class Products {
     if (this._id) {
       const filter = { _id: this._id };
       const updateDoc = { $set: this };
-
       db.collection("products")
         .updateOne(filter, updateDoc)
         .then((result) => {
@@ -26,7 +25,7 @@ module.exports = class Products {
       db.collection("products")
         .insertOne(this)
         .then((result) => {
-          console.log(result);
+          console.log("added");
         })
         .catch((err) => {
           console.log(err);
@@ -63,7 +62,14 @@ module.exports = class Products {
         throw err;
       });
   }
+
+  static deleteById(id) {
+    const db = getDb();
+
+    db.collection("products").deleteOne({ _id: new ObjectId(id) });
+  }
 };
 
 // in find method we can add filters
 // to retrieve specifics parts of a collection
+// like a sql query

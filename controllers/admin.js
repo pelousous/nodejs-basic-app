@@ -10,13 +10,13 @@ const getAddProduct = (req, res, next) => {
 };
 
 const postAddProduct = (req, res, next) => {
-  console.log(req.body);
   const product = new Product(
     (title = req.body.title),
     (imageUrl = req.body.imageUrl),
     (price = req.body.price),
     (description = req.body.description.trim())
   );
+
   product.save(product);
   res.redirect("/");
 };
