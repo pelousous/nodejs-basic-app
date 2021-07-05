@@ -100,4 +100,31 @@ module.exports = class User {
         });
       });
   }
+
+  addOrder() {
+    const db = getDb();
+
+    return this.getCart()
+      .then((cart) => {
+        return db.collection("orders").insertOne({
+          items: cart,
+          user: {
+            id: new ObjectId(this.id),
+            name: this.name,
+          },
+        });
+      })
+      .then((resp) => {
+        db.collection("users").updateOne(
+          { _id: new ObjectId(this.id) },
+          {
+            $set: {
+              cart: {
+                items: [],
+              },
+            },
+          }
+        );
+      });
+  }
 };

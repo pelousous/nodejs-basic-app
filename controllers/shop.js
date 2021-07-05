@@ -98,6 +98,17 @@ const postCartDeleteItem = (req, res, next) => {
     });
 };
 
+const postOrder = (req, res, next) => {
+  req.user
+    .addOrder()
+    .then((resp) => {
+      res.redirect("/cart");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
 module.exports = {
   getProducts,
   getProduct,
@@ -105,6 +116,7 @@ module.exports = {
   getCart,
   postCart,
   getOrders,
+  postOrder,
   getCheckout,
   postCartDeleteItem,
 };
