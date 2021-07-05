@@ -73,9 +73,13 @@ const postCart = (req, res, next) => {
 };
 
 const getOrders = (req, res, next) => {
-  res.render("shop/orders", {
-    pageTitle: "Orders",
-    path: "/orders",
+  req.user.getOrders().then((orders) => {
+    console.log(orders);
+    res.render("shop/orders", {
+      pageTitle: "Orders",
+      path: "/orders",
+      orders,
+    });
   });
 };
 

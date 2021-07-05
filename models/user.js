@@ -127,4 +127,15 @@ module.exports = class User {
         );
       });
   }
+
+  getOrders() {
+    const db = getDb();
+
+    return db
+      .collection("orders")
+      .find({
+        "user.id": new ObjectId(this.id),
+      })
+      .toArray();
+  }
 };
