@@ -34,15 +34,31 @@ module.exports = class User {
       });
   }
 
+  deleteItemFromCart(productId) {
+    const db = getDb();
+
+    const newCartItems = this.cart.items.filter((el) => {
+      return el.productId.toString() !== productId.toString();
+    });
+
+    return db.collection("users").updateOne(
+      { _id: new ObjectId(this.id.toString()) },
+      {
+        $set: {
+          cart: {
+            items: newCartItems,
+          },
+        },
+      }
+    );
+  }
+
   addToCart(product) {
     const db = getDb();
     const newCart = [...this.cart.items];
-    console.log("new cart: " + newCart);
     const foundIndex = newCart.findIndex(
       (el) => el.productId.toString() === product._id.toString()
     );
-
-    console.log("foundindex: ", foundIndex);
 
     if (foundIndex >= 0) {
       newCart[foundIndex].quantity += 1;

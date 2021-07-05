@@ -54,7 +54,6 @@ const getCart = (req, res, next) => {
   // });
 
   req.user.getCart().then((cart) => {
-    console.log(cart);
     res.render("shop/cart", {
       pageTitle: "Cart",
       path: "/cart",
@@ -89,9 +88,14 @@ const getCheckout = (req, res, next) => {
 
 const postCartDeleteItem = (req, res, next) => {
   const id = req.body.productId;
-  const price = req.body.price;
-  Cart.deleteProduct(id, price);
-  res.redirect("/cart");
+  req.user
+    .deleteItemFromCart(id)
+    .then((resp) => {
+      res.redirect("/cart");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 module.exports = {
