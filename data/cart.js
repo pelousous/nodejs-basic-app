@@ -1,1 +1,1 @@
-{"products":[],"totalPrice":0}
+{"products":[{"id":"60d9a0ca1bdae61a091567cd","qty":4},{"id":"60d9a1b41a41611ebe012e7e","qty":1}],"totalPrice":157}

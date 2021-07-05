@@ -75,3 +75,24 @@ module.exports = {
   postEditProduct,
   postDeleteProduct,
 };
+
+/*
+    const db = getDb();
+    const ids = this.cart.items.map((el) => el.productId);
+    return db
+      .collection("products")
+      .find({ _id: { $in: ids } })
+      .toArray()
+      .then((products) => {
+        console.log(products);
+        return products.map((prod) => {
+          return {
+            ...prod,
+            quantity: this.cart.items.find(
+              (el) => el.productId.toString() == prod._id.toString()
+            ).quantity,
+          };
+        });
+      });
+
+*/
