@@ -1,8 +1,8 @@
 const Product = require("../models/product");
-const Cart = require("../models/cart");
+//const Cart = require("../models/cart");
 
 const getIndex = (req, res, next) => {
-  const products = Product.fetchAll().then((products) => {
+  const products = Product.find({}).then((products) => {
     res.render("shop/index", {
       prods: products,
       pageTitle: "Shop",
@@ -12,7 +12,7 @@ const getIndex = (req, res, next) => {
 };
 
 const getProducts = (req, res, next) => {
-  const products = Product.fetchAll().then((products) => {
+  const products = Product.find({}).then((products) => {
     res.render("shop/index", {
       prods: products,
       pageTitle: "All Products",
@@ -23,7 +23,7 @@ const getProducts = (req, res, next) => {
 
 const getProduct = (req, res, next) => {
   const id = req.params.productId;
-  const product = Product.fetchById(id).then((product) => {
+  const product = Product.findById(id).then((product) => {
     res.render("shop/product-detail", {
       product: product,
       pageTitle: "Product detail",
