@@ -2,13 +2,15 @@ const Product = require("../models/product");
 //const Cart = require("../models/cart");
 
 const getIndex = (req, res, next) => {
-  const products = Product.find({}).then((products) => {
-    res.render("shop/index", {
-      prods: products,
-      pageTitle: "Shop",
-      path: "/",
+  const products = Product.find({})
+    .populate("userId")
+    .then((products) => {
+      res.render("shop/index", {
+        prods: products,
+        pageTitle: "Shop",
+        path: "/",
+      });
     });
-  });
 };
 
 const getProducts = (req, res, next) => {
@@ -53,19 +55,23 @@ const getCart = (req, res, next) => {
   //   });
   // });
 
-  req.user.getCart().then((cart) => {
-    res.render("shop/cart", {
-      pageTitle: "Cart",
-      path: "/cart",
-      products: cart,
+  req.user
+    .populate("cart.items.productId")
+    .execPopulate()
+    .then((user) => {
+      console.log(user.cart.items);
+      res.render("shop/cart", {
+        pageTitle: "Cart",
+        path: "/cart",
+        products: user.cart.items,
+      });
     });
-  });
 };
 
 const postCart = (req, res, next) => {
   const { productId } = req.body;
   const user = req.user;
-  Product.fetchById(productId).then((product) => {
+  Product.findById(productId, (err, product) => {
     user.addToCart(product).then((response) => {
       res.redirect("/cart");
     });
@@ -93,7 +99,7 @@ const getCheckout = (req, res, next) => {
 const postCartDeleteItem = (req, res, next) => {
   const id = req.body.productId;
   req.user
-    .deleteItemFromCart(id)
+    .removeItemFromCart(id)
     .then((resp) => {
       res.redirect("/cart");
     })
