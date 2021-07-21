@@ -6,10 +6,12 @@ const getIndex = (req, res, next) => {
   const products = Product.find({})
     .populate("userId")
     .then((products) => {
+      console.log(req.session.isLoggedIn);
       res.render("shop/index", {
         prods: products,
         pageTitle: "Shop",
         path: "/",
+        isAuthenticated: req.session.isLoggedIn,
       });
     });
 };
@@ -20,6 +22,7 @@ const getProducts = (req, res, next) => {
       prods: products,
       pageTitle: "All Products",
       path: "/products",
+      isAuthenticated: req.session.isLoggedIn,
     });
   });
 };
@@ -31,6 +34,7 @@ const getProduct = (req, res, next) => {
       product: product,
       pageTitle: "Product detail",
       path: "products",
+      isAuthenticated: req.session.isLoggedIn,
     });
   });
 };
@@ -65,6 +69,7 @@ const getCart = (req, res, next) => {
         pageTitle: "Cart",
         path: "/cart",
         products: user.cart.items,
+        isAuthenticated: req.session.isLoggedIn,
       });
     });
 };
@@ -86,6 +91,7 @@ const getOrders = (req, res, next) => {
       pageTitle: "Orders",
       path: "/orders",
       orders,
+      isAuthenticated: req.session.isLoggedIn,
     });
   });
 
@@ -103,6 +109,7 @@ const getCheckout = (req, res, next) => {
   res.render("shop/checkout", {
     pageTitle: "Checkout",
     path: "/checkout",
+    isAuthenticated: req.session.isLoggedIn,
   });
 };
 
