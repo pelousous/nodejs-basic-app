@@ -19,7 +19,7 @@ const User = require("./models/user");
 //   });
 
 const store = new MongoDBStore({
-  uri: "mongodb+srv://davidepelo:pelosone75@cluster0.ijrdt.mongodb.net/node-tuts",
+  uri: "",
   collection: "sessions",
 });
 
@@ -65,7 +65,7 @@ app.use(errorController.get404);
 
 mongoose
   .connect(
-    "mongodb+srv://davidepelo:pelosone75@cluster0.ijrdt.mongodb.net/node-tuts?retryWrites=true&w=majority",
+    "",
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then((result) => {
