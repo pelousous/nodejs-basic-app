@@ -42,16 +42,20 @@ app.use(
   })
 );
 
-// app.use((req, res, next) => {
-//   User.findById("60e80aa4677c9209b43a054d")
-//     .then((user) => {
-//       req.user = user;
-//       next();
-//     })
-//     .catch((err) => {
-//       throw err;
-//     });
-// });
+app.use((req, res, next) => {
+  if (!req.session.user) {
+    return next();
+  }
+
+  User.findById(req.session.user._id)
+    .then((user) => {
+      req.user = user;
+      next();
+    })
+    .catch((err) => {
+      throw err;
+    });
+});
 
 app.use("/admin", adminData.routes);
 app.use(shopRoutes);
@@ -66,18 +70,18 @@ mongoose
   )
   .then((result) => {
     // create a user if not in db
-    User.findById("60e80aa4677c9209b43a054d").then((user) => {
-      if (!user) {
-        const user = new User({
-          name: "Davide",
-          email: "info@davideravasi.com",
-          cart: {
-            items: [],
-          },
-        });
-        user.save();
-      }
-    });
+    // User.findById("60e80aa4677c9209b43a054d").then((user) => {
+    //   if (!user) {
+    //     const user = new User({
+    //       name: "Davide",
+    //       email: "info@davideravasi.com",
+    //       cart: {
+    //         items: [],
+    //       },
+    //     });
+    //     user.save();
+    //   }
+    // });
 
     app.listen(3000);
     console.log("connected with mongoose");
