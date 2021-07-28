@@ -11,8 +11,6 @@ const getIndex = (req, res, next) => {
         prods: products,
         pageTitle: "Shop",
         path: "/",
-        isAuthenticated: req.session.isLoggedIn,
-        csrfToken: req.csrfToken(),
       });
     });
 };
@@ -141,7 +139,7 @@ const postOrder = (req, res, next) => {
         products: products,
         user: {
           userId: data.id,
-          name: data.name,
+          email: user.email,
         },
       });
 

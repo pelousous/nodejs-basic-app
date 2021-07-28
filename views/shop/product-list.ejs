@@ -23,6 +23,7 @@
                         </div>
                         <div class="card__actions">
                             <form action="/add-to-cart" method="POST">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <button class="btn" type="submit">Add to Cart</button>
                             </form>
                         </div>
