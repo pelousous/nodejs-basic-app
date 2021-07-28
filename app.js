@@ -6,6 +6,7 @@ const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const errorController = require("./controllers/error");
 const User = require("./models/user");
+const csrf = require("csurf");
 //const User = require("./models/user");
 // const db = require("./util/database_mysql");
 //const mongoConnect = require("./util/database").mongoConnect;
@@ -42,6 +43,8 @@ app.use(
   })
 );
 
+app.use(csrf());
+
 app.use((req, res, next) => {
   if (!req.session.user) {
     return next();
@@ -64,10 +67,7 @@ app.use(authRoutes);
 app.use(errorController.get404);
 
 mongoose
-  .connect(
-    "",
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  )
+  .connect("", { useNewUrlParser: true, useUnifiedTopology: true })
   .then((result) => {
     // create a user if not in db
     // User.findById("60e80aa4677c9209b43a054d").then((user) => {
