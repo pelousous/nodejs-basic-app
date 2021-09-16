@@ -20,8 +20,7 @@ const flash = require("connect-flash");
 //     console.log(err);
 //   });
 
-const MONGODB_URI =
-  "mongodb+srv://davidepelo:pelosone75@cluster0.ijrdt.mongodb.net/node-tuts?retryWrites=true&w=majority";
+const MONGODB_URI = "";
 
 const store = new MongoDBStore({
   uri: MONGODB_URI,
