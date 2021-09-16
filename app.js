@@ -7,6 +7,7 @@ const MongoDBStore = require("connect-mongodb-session")(session);
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 const csrf = require("csurf");
+const flash = require("connect-flash");
 //const User = require("./models/user");
 // const db = require("./util/database_mysql");
 //const mongoConnect = require("./util/database").mongoConnect;
@@ -19,8 +20,11 @@ const csrf = require("csurf");
 //     console.log(err);
 //   });
 
+const MONGODB_URI =
+  "mongodb+srv://davidepelo:pelosone75@cluster0.ijrdt.mongodb.net/node-tuts?retryWrites=true&w=majority";
+
 const store = new MongoDBStore({
-  uri: "",
+  uri: MONGODB_URI,
   collection: "sessions",
 });
 
@@ -66,6 +70,8 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(flash());
+
 app.use("/admin", adminData.routes);
 app.use(shopRoutes);
 app.use(authRoutes);
@@ -73,7 +79,7 @@ app.use(authRoutes);
 app.use(errorController.get404);
 
 mongoose
-  .connect("", { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then((result) => {
     // create a user if not in db
     // User.findById("60e80aa4677c9209b43a054d").then((user) => {

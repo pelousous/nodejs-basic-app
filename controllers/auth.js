@@ -7,7 +7,7 @@ const getLogin = (req, res, next) => {
   res.render("auth/login", {
     pageTitle: "Login",
     path: "/login",
-    isAuthenticated: req.session.isLoggedIn,
+    messages: req.flash("error"),
   });
 };
 
@@ -15,7 +15,7 @@ const getSignup = (req, res, next) => {
   res.render("auth/signup", {
     path: "/signup",
     pageTitle: "Signup",
-    isAuthenticated: false,
+    messages: req.flash("error"),
   });
 };
 
@@ -26,12 +26,15 @@ const postLogin = (req, res, next) => {
 
   User.findOne({ email: email }).then((user) => {
     if (!user) {
+      req.flash("error", "the email or password is not valid");
       return res.redirect("/login");
     }
 
     bcrypt.compare(password, user.password).then((isTheSame) => {
-      console.log(isTheSame);
-      if (!isTheSame) return res.redirect("/login");
+      if (!isTheSame) {
+        req.flash("error", "the email or password is not valid");
+        return res.redirect("/login");
+      }
 
       req.session.isLoggedIn = true;
       req.session.user = user;
@@ -58,6 +61,7 @@ const postSignup = (req, res, next) => {
   // console.log(email + " " + password + " " + confirmPassword);
   User.findOne({ email: email }, (error, user) => {
     if (user) {
+      req.flash("error", "Email already exists, pick another one");
       return res.redirect("/login");
     }
 
