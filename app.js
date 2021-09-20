@@ -8,6 +8,9 @@ const errorController = require("./controllers/error");
 const User = require("./models/user");
 const csrf = require("csurf");
 const flash = require("connect-flash");
+const dotenv = require("dotenv");
+
+dotenv.config();
 //const User = require("./models/user");
 // const db = require("./util/database_mysql");
 //const mongoConnect = require("./util/database").mongoConnect;
@@ -20,7 +23,7 @@ const flash = require("connect-flash");
 //     console.log(err);
 //   });
 
-const MONGODB_URI = "";
+const MONGODB_URI = process.env.MONGO_URL;
 
 const store = new MongoDBStore({
   uri: MONGODB_URI,

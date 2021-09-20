@@ -1,5 +1,33 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
+// const sgTransport = require("nodemailer-sendgrid-transport");
+
+// const options = {
+//   auth: {
+//     api_user: "SENDGRID_USERNAME",
+//     api_key: "SENDGRID_PASSWORD",
+//   },
+// };
+
+// const client = nodemailer.createTransport(sgTransport(options));
+
+// https://stackoverflow.com/questions/60641391/nodemailer-does-not-work-with-aruba-webmail
+var client = nodemailer.createTransport({
+  host: process.env.EMAIL_ACCOUNT_HOST,
+  logger: true,
+  debug: true,
+  secure: true,
+  port: 465,
+  auth: {
+    user: process.env.EMAIL_ACCOUNT_USER,
+    pass: process.env.EMAIL_ACCOUNT_PASSWORD,
+  },
+  tls: {
+    minVersion: "TLSv1",
+    ciphers: "HIGH:MEDIUM:!aNULL:!eNULL:@STRENGTH:!DH:!kEDH",
+  },
+});
 
 const getLogin = (req, res, next) => {
   //const isAuthenticated = req.get("Cookie").split("=")[1];
@@ -80,6 +108,22 @@ const postSignup = (req, res, next) => {
       })
       .then(() => {
         res.redirect("/login");
+
+        const email = {
+          from: "test@nodemailer.com",
+          to: "info@davideravasi.com",
+          subject: "Hello",
+          text: "Hello world",
+          html: "<b>Hello world</b>",
+        };
+
+        client.sendMail(email, function (err, info) {
+          if (err) {
+            console.log(error);
+          } else {
+            console.log("Message sent: " + info.response);
+          }
+        });
       });
   });
 };
