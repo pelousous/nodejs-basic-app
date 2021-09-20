@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 // const sgTransport = require("nodemailer-sendgrid-transport");
 
 // const options = {
@@ -141,6 +142,55 @@ const postLogout = (req, res, next) => {
   });
 };
 
+const postReset = (req, res, next) => {
+  const email = req.body.email;
+
+  //if exists create token
+  crypto.randomBytes(32, (err, buf) => {
+    if (err) throw err;
+
+    const token = buf.toString("hex");
+
+    // check if email exists
+    User.findOne({ email: email })
+      .then((user) => {
+        // if doesn't exists redirect and flash message
+        if (!user) {
+          req.flash("error", "this email doesn't exists in our database");
+          return res.redirect("/login");
+        }
+
+        // save token to mongodb
+        user.resetToken = token;
+        user.resetTokenExpiration = Date.now() + 3600000;
+        return user.save();
+      })
+      .then((result) => {
+        res.redirect("/");
+        // send email with link
+        const email = {
+          from: "test@nodemailer.com",
+          to: "info@davideravasi.com",
+          subject: "Reset password",
+          text: "Reset password",
+          html: `<h1>You requested to password reset</h1>
+                <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to reset your password</p>`,
+        };
+
+        client.sendMail(email, function (err, info) {
+          if (err) {
+            console.log(error);
+          } else {
+            req.flash(
+              "error",
+              "Message sent with the link to reset your password"
+            );
+          }
+        });
+      });
+  });
+};
+
 module.exports = {
   getLogin,
   getSignup,
@@ -148,4 +198,5 @@ module.exports = {
   postLogin,
   postSignup,
   postLogout,
+  postReset,
 };
