@@ -46,6 +46,13 @@ const getSignup = (req, res, next) => {
     messages: req.flash("error"),
   });
 };
+const getReset = (req, res, next) => {
+  res.render("auth/reset", {
+    path: "/reset",
+    pageTitle: "Reset password",
+    messages: req.flash("error"),
+  });
+};
 
 const postLogin = (req, res, next) => {
   //res.setHeader("Set-Cookie", "loggedIn=true");
@@ -137,6 +144,7 @@ const postLogout = (req, res, next) => {
 module.exports = {
   getLogin,
   getSignup,
+  getReset,
   postLogin,
   postSignup,
   postLogout,
