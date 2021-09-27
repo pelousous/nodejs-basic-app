@@ -2,6 +2,7 @@ const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const user = require("../models/user");
 // const sgTransport = require("nodemailer-sendgrid-transport");
 
 // const options = {
@@ -191,12 +192,89 @@ const postReset = (req, res, next) => {
   });
 };
 
+const getNewPassword = (req, res, next) => {
+  const token = req.params.token;
+
+  console.log(token);
+
+  User.findOne({
+    resetToken: token,
+    resetTokenExpiration: { $gt: Date.now() },
+  }).then((user) => {
+    console.log(user);
+
+    if (!user) {
+      req.flash("error", "this token doesn't exists on our db");
+      return res.redirect("/login");
+    }
+
+    res.render("auth/new-password", {
+      pageTitle: "Reset password",
+      path: "/reset-password",
+      messages: req.flash("error"),
+      userId: user._id,
+      token: token,
+    });
+  });
+};
+
+const postNewPassword = (req, res, next) => {
+  const password = req.body.password;
+  const userId = req.body.userId;
+  const token = req.body.token;
+  let resetUser;
+
+  console.log(password);
+  console.log(userId);
+  console.log(token);
+
+  User.findOne({
+    resetToken: token,
+    resetTokenExpiration: { $gt: Date.now() },
+    _id: userId,
+  })
+    .then((user) => {
+      resetUser = user;
+      return bcrypt.hash(password, 12);
+    })
+    .then((hashed) => {
+      console.log("hashed", hashed);
+      resetUser.password = hashed;
+      resetUser.resetToken = null;
+      resetUser.resetTokenExpiration = null;
+      resetUser.save();
+
+      return resetUser;
+    })
+    .then((user) => {
+      res.redirect("/login");
+      const email = {
+        from: "test@nodemailer.com",
+        to: "info@davideravasi.com",
+        subject: "Reset password",
+        text: "Reset password",
+        html: `<h1>thanks ${user.email}</h1>
+              <p>Your password has been resetted</p>`,
+      };
+
+      client.sendMail(email, function (err, info) {
+        if (err) {
+          console.log(error);
+        } else {
+          req.flash("error", "Password succesfully resetted");
+        }
+      });
+    });
+};
+
 module.exports = {
   getLogin,
   getSignup,
   getReset,
+  getNewPassword,
   postLogin,
   postSignup,
   postLogout,
   postReset,
+  postNewPassword,
 };

@@ -10,6 +10,12 @@ const csrf = require("csurf");
 const flash = require("connect-flash");
 const dotenv = require("dotenv");
 
+/*
+config will read your .env file, 
+parse the contents, 
+assign it to process.env, 
+and return an Object with a parsed key containing the loaded content or an error key if it failed.
+*/
 dotenv.config();
 //const User = require("./models/user");
 // const db = require("./util/database_mysql");
