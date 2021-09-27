@@ -195,14 +195,10 @@ const postReset = (req, res, next) => {
 const getNewPassword = (req, res, next) => {
   const token = req.params.token;
 
-  console.log(token);
-
   User.findOne({
     resetToken: token,
     resetTokenExpiration: { $gt: Date.now() },
   }).then((user) => {
-    console.log(user);
-
     if (!user) {
       req.flash("error", "this token doesn't exists on our db");
       return res.redirect("/login");
@@ -224,10 +220,6 @@ const postNewPassword = (req, res, next) => {
   const token = req.body.token;
   let resetUser;
 
-  console.log(password);
-  console.log(userId);
-  console.log(token);
-
   User.findOne({
     resetToken: token,
     resetTokenExpiration: { $gt: Date.now() },
@@ -238,10 +230,9 @@ const postNewPassword = (req, res, next) => {
       return bcrypt.hash(password, 12);
     })
     .then((hashed) => {
-      console.log("hashed", hashed);
       resetUser.password = hashed;
-      resetUser.resetToken = null;
-      resetUser.resetTokenExpiration = null;
+      resetUser.resetToken = undefined;
+      resetUser.resetTokenExpiration = undefined;
       resetUser.save();
 
       return resetUser;
