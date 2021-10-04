@@ -55,37 +55,37 @@ const postEditProduct = (req, res, next) => {
 
   //const product = new Product(title, imageUrl, price, description, id);
 
-  Product.findByIdAndUpdate(
-    id,
-    {
-      $set: {
-        title: title,
-        imageUrl: imageUrl,
-        price: price,
-        description: description,
-      },
-    },
-    () => {
-      res.redirect("/admin/products");
+  Product.findById(id).then((product) => {
+    if (product.userId.toString() !== req.user._id.toString()) {
+      return res.redirect("/");
     }
-  );
+    product.title = title;
+    product.imageUrl = imageUrl;
+    product.price = price;
+    product.description = description;
+    return product.save().then((result) => {
+      res.redirect("/admin/products");
+    });
+  });
 };
 
 const getProducts = (req, res, next) => {
-  const products = Product.find({}).then((products) => {
-    res.render("admin/products", {
-      prods: products,
-      pageTitle: "All Products",
-      path: "/products",
-      isAuthenticated: req.session.isLoggedIn,
-    });
-  });
+  const products = Product.find({ userId: req.user._id.toString() }).then(
+    (products) => {
+      res.render("admin/products", {
+        prods: products,
+        pageTitle: "All Products",
+        path: "/products",
+        isAuthenticated: req.session.isLoggedIn,
+      });
+    }
+  );
 };
 
 const postDeleteProduct = (req, res, next) => {
   const productId = req.body.productId;
   const price = req.body.price;
-  Product.findByIdAndRemove(productId, () => {
+  Product.remove({ _id: productId, userId: req.user._id }, () => {
     res.redirect("/admin/products");
   });
 };
