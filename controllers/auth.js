@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const user = require("../models/user");
+const { validationResult } = require("express-validator");
 // const sgTransport = require("nodemailer-sendgrid-transport");
 
 // const options = {
@@ -60,23 +61,26 @@ const postLogin = (req, res, next) => {
   //res.setHeader("Set-Cookie", "loggedIn=true");
   const email = req.body.email;
   const password = req.body.password;
+  const errors = validationResult(req);
 
-  User.findOne({ email: email }).then((user) => {
-    if (!user) {
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.status(422).render("auth/login", {
+      path: "/login",
+      pageTitle: "Login",
+      messages: errors.array()[0].msg,
+    });
+  }
+
+  bcrypt.compare(password, user.password).then((isTheSame) => {
+    if (!isTheSame) {
       req.flash("error", "the email or password is not valid");
       return res.redirect("/login");
     }
 
-    bcrypt.compare(password, user.password).then((isTheSame) => {
-      if (!isTheSame) {
-        req.flash("error", "the email or password is not valid");
-        return res.redirect("/login");
-      }
-
-      req.session.isLoggedIn = true;
-      req.session.user = user;
-      return res.redirect("/");
-    });
+    req.session.isLoggedIn = true;
+    req.session.user = user;
+    return res.redirect("/");
   });
 
   // User.findById("60e80aa4677c9209b43a054d")
@@ -94,47 +98,50 @@ const postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const confirmPassword = req.body.confirmPassword;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.status(422).render("auth/signup", {
+      path: "/signup",
+      pageTitle: "Signup",
+      messages: errors.array()[0].msg,
+    });
+  }
 
   // console.log(email + " " + password + " " + confirmPassword);
-  User.findOne({ email: email }, (error, user) => {
-    if (user) {
-      req.flash("error", "Email already exists, pick another one");
-      return res.redirect("/login");
-    }
-
-    bcrypt
-      .hash(password, 12)
-      .then((hashed) => {
-        const user = new User({
-          email: email,
-          password: hashed,
-          cart: {
-            items: [],
-          },
-        });
-
-        return user.save();
-      })
-      .then(() => {
-        res.redirect("/login");
-
-        const email = {
-          from: "test@nodemailer.com",
-          to: "info@davideravasi.com",
-          subject: "Hello",
-          text: "Hello world",
-          html: "<b>Hello world</b>",
-        };
-
-        client.sendMail(email, function (err, info) {
-          if (err) {
-            console.log(error);
-          } else {
-            console.log("Message sent: " + info.response);
-          }
-        });
+  bcrypt
+    .hash(password, 12)
+    .then((hashed) => {
+      const user = new User({
+        email: email,
+        password: hashed,
+        cart: {
+          items: [],
+        },
       });
-  });
+
+      return user.save();
+    })
+    .then(() => {
+      res.redirect("/login");
+
+      const email = {
+        from: "test@nodemailer.com",
+        to: "info@davideravasi.com",
+        subject: "Hello",
+        text: "Hello world",
+        html: "<b>Hello world</b>",
+      };
+
+      client.sendMail(email, function (err, info) {
+        if (err) {
+          console.log(error);
+        } else {
+          console.log("Message sent: " + info.response);
+        }
+      });
+    });
 };
 
 const postLogout = (req, res, next) => {
