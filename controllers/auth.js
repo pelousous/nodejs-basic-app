@@ -39,6 +39,11 @@ const getLogin = (req, res, next) => {
     pageTitle: "Login",
     path: "/login",
     messages: req.flash("error"),
+    oldInput: {
+      email: "",
+      password: "",
+    },
+    validationErrors: [],
   });
 };
 
@@ -47,6 +52,12 @@ const getSignup = (req, res, next) => {
     path: "/signup",
     pageTitle: "Signup",
     messages: req.flash("error"),
+    oldInput: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+    validationErrors: [],
   });
 };
 const getReset = (req, res, next) => {
@@ -69,6 +80,11 @@ const postLogin = (req, res, next) => {
       path: "/login",
       pageTitle: "Login",
       messages: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password,
+      },
+      validationErrors: errors.array(),
     });
   }
 
@@ -106,6 +122,12 @@ const postSignup = (req, res, next) => {
       path: "/signup",
       pageTitle: "Signup",
       messages: errors.array()[0].msg,
+      oldInput: {
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+      },
+      validationErrors: errors.array(),
     });
   }
 
