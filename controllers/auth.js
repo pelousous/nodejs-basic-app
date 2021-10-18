@@ -88,16 +88,44 @@ const postLogin = (req, res, next) => {
     });
   }
 
-  bcrypt.compare(password, user.password).then((isTheSame) => {
-    if (!isTheSame) {
-      req.flash("error", "the email or password is not valid");
-      return res.redirect("/login");
-    }
+  User.findOne({ email: email })
+    .then((user) => {
+      if (!user) {
+        return res.status(422).render("auth/login", {
+          path: "/login",
+          pageTitle: "Login",
+          messages: "The email doesn't exists in our db",
+          oldInput: {
+            email: email,
+            password: password,
+          },
+          validationErrors: [],
+        });
+      }
 
-    req.session.isLoggedIn = true;
-    req.session.user = user;
-    return res.redirect("/");
-  });
+      bcrypt
+        .compare(password, user.password)
+        .then((isTheSame) => {
+          if (!isTheSame) {
+            return res.status(422).render("auth/login", {
+              path: "/login",
+              pageTitle: "Login",
+              messages: "There an error in your connection datas",
+              oldInput: {
+                email: email,
+                password: password,
+              },
+              validationErrors: [],
+            });
+          }
+
+          req.session.isLoggedIn = true;
+          req.session.user = user;
+          return res.redirect("/");
+        })
+        .catch((err) => console.log(err));
+    })
+    .catch((err) => console.log(err));
 
   // User.findById("60e80aa4677c9209b43a054d")
   //   .then((user) => {
@@ -117,7 +145,6 @@ const postSignup = (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    console.log(errors.array());
     return res.status(422).render("auth/signup", {
       path: "/signup",
       pageTitle: "Signup",

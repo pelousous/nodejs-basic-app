@@ -17,6 +17,7 @@ router.post(
   check("email")
     .isEmail()
     .withMessage("This email is not valid")
+    .normalizeEmail()
     .custom((value, { req }) => {
       return User.findOne({ email: value }).then((user) => {
         if (!user) {
@@ -24,9 +25,10 @@ router.post(
         }
       });
     }),
-  check("password", "The password must be at least 5 characters long").isLength(
-    { min: 5 }
-  ),
+  check("password", "The password must be at least 5 characters long")
+    .isLength({ min: 5 })
+    .trim()
+    .escape(),
   authController.postLogin
 );
 
@@ -35,6 +37,7 @@ router.post(
   check("email")
     .isEmail()
     .withMessage("This email is not valid")
+    .normalizeEmail()
     .custom((value, { req }) => {
       return User.findOne({ email: value }).then((user) => {
         if (user) {
@@ -42,16 +45,22 @@ router.post(
         }
       });
     }),
-  body("password", "The password must be at least 8 characters long").isLength({
-    min: 8,
-  }),
-  body("confirmPassword").custom((value, { req }) => {
-    if (value !== req.body.password) {
-      throw Error("Password don't match");
-    } else {
-      return value;
-    }
-  }),
+  body("password", "The password must be at least 8 characters long")
+    .isLength({
+      min: 8,
+    })
+    .trim()
+    .escape(),
+  body("confirmPassword")
+    .trim()
+    .escape()
+    .custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw Error("Password don't match");
+      } else {
+        return value;
+      }
+    }),
   authController.postSignup
 );
 
