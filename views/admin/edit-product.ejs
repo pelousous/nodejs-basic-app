@@ -7,6 +7,11 @@
    <%- include('../includes/navigation.ejs') %>
 
     <main>
+        <% if (messages && messages != '') { %>
+            <div class="user-message user-message--error">
+                <%= messages %>
+            </div>
+        <% } %>  
         <form class="product-form" action="<% if(edit) { %>
             /admin/update-product
         <% } else { %>
@@ -14,7 +19,10 @@
         <% } %>" method="POST">
             <div class="form-control">
                 <label for="title">Title</label>
-                <input type="text" name="title" id="title" 
+                <input 
+                    type="text" 
+                    name="title" 
+                    id="title" 
                 <% if(product) { %>value="<%= product.title %>" <% } %>
                 >
             </div>
@@ -32,9 +40,7 @@
             </div>
             <div class="form-control">
                 <label for="description">Description</label>
-                <textarea name="description" id="description" row="5">
-                    <% if(product) { %><%= product.description %><% } %>
-                </textarea>
+                <textarea name="description" id="description" row="5"><% if(product) { %><%= product.description %><% } %></textarea>
             </div>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <input type="hidden" name="productId" id="productId"

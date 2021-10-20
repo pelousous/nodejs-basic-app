@@ -1,4 +1,5 @@
 const express = require("express");
+const { check, body } = require("express-validator");
 
 const adminController = require("../controllers/admin");
 
@@ -10,13 +11,42 @@ const router = express.Router();
 router.get("/add-product", isAuth, adminController.getAddProduct);
 
 // // /admin/add-product => POST
-router.post("/add-product", isAuth, adminController.postAddProduct);
+router.post(
+  "/add-product",
+  [
+    check("title", "Title have to be at least 5 characters long")
+      .isString()
+      .isLength({ min: 5 })
+      .trim(),
+    check("imageUrl", "The url in the image field is not valid").isURL().trim(),
+    check("price", "The price has to be a currency value").isFloat().trim(),
+    check("description", "Description has to be at least 8 characters long")
+      .isLength({ min: 8, max: 400 })
+      .trim(),
+  ],
+  isAuth,
+  adminController.postAddProduct
+);
 
 // // /admin/edit-product => GET
 router.get("/edit-product/:productId", isAuth, adminController.getEditProduct);
 
 // // /admin/edit-product => POST
-router.post("/update-product", isAuth, adminController.postEditProduct);
+router.post(
+  "/update-product",
+  isAuth,
+  check("title", "Title have to be at least 5 characters long")
+    .isLength({ min: 5 })
+    .trim()
+    .escape(),
+  check("imageUrl", "The url in the image field is not valid").isURL().trim(),
+  check("price", "The price has to be a currency value").isCurrency().trim(),
+  check("description", "Description has to be at least 8 characters long")
+    .isLength({ min: 8, max: 400 })
+    .trim()
+    .escape(),
+  adminController.postEditProduct
+);
 
 // // /admin/products => GET
 router.get("/products", isAuth, adminController.getProducts);
