@@ -23,24 +23,37 @@
                     type="text" 
                     name="title" 
                     id="title" 
+                    <% if(errorsValues.find(err => err.param === 'title')) { %> 
+                        class="invalid"
+                    <% } %>    
                 <% if(product) { %>value="<%= product.title %>" <% } %>
                 >
             </div>
             <div class="form-control">
                 <label for="imageUrl">Image</label>
                 <input type="text" name="imageUrl" id="imageUrl"
+                <% if(errorsValues.find(err => err.param === 'imageUrl')) { %> 
+                    class="invalid"
+                <% } %> 
                 <% if(product) { %>value="<%= product.imageUrl %>" <% } %>
                 >
             </div>
             <div class="form-control">
                 <label for="price">Price</label>
                 <input type="text" name="price" id="price"
+                <% if(errorsValues.find(err => err.param === 'price')) { %> 
+                    class="invalid"
+                <% } %> 
                 <% if(product) { %>value="<%= product.price %>" <% } %>
                 >
             </div>
             <div class="form-control">
                 <label for="description">Description</label>
-                <textarea name="description" id="description" row="5"><% if(product) { %><%= product.description %><% } %></textarea>
+                <textarea name="description" id="description" row="5"
+                <% if(errorsValues.find(err => err.param === 'description')) { %> 
+                    class="invalid"
+                <% } %> 
+                ><% if(product) { %><%= product.description %><% } %></textarea>
             </div>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <input type="hidden" name="productId" id="productId"

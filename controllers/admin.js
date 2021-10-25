@@ -8,6 +8,7 @@ const getAddProduct = (req, res, next) => {
     messages: null,
     edit: false,
     product: {},
+    errorsValues: [],
     isAuthenticated: req.session.isLoggedIn,
   });
 };
@@ -28,6 +29,7 @@ const postAddProduct = (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
+    console.log(errors);
     return res.status(422).render("admin/edit-product", {
       pageTitle: "Add Product",
       path: "/admin/add-product",
@@ -39,6 +41,7 @@ const postAddProduct = (req, res, next) => {
         price: price,
         description: description,
       },
+      errorsValues: errors.array(),
       validationErrors: errors.array(),
     });
   }
@@ -66,6 +69,7 @@ const getEditProduct = (req, res, next) => {
       messages: "",
       edit: isEditing,
       product: product,
+      errorsValues: [],
       isAuthenticated: req.session.isLoggedIn,
     });
   });
@@ -93,6 +97,7 @@ const postEditProduct = (req, res, next) => {
         description: description,
         userId: req.user._id.toString(),
       },
+      errorsValues: errors.array(),
       isAuthenticated: req.session.isLoggedIn,
     });
   }
