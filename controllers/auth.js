@@ -125,7 +125,11 @@ const postLogin = (req, res, next) => {
         })
         .catch((err) => console.log(err));
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error("Error with the database");
+      error.httpStatusCode = 500;
+      next(error);
+    });
 
   // User.findById("60e80aa4677c9209b43a054d")
   //   .then((user) => {
@@ -190,6 +194,11 @@ const postSignup = (req, res, next) => {
           console.log("Message sent: " + info.response);
         }
       });
+    })
+    .catch((err) => {
+      const error = new Error("Error with the database");
+      error.httpStatusCode = 500;
+      next(error);
     });
 };
 
@@ -236,7 +245,7 @@ const postReset = (req, res, next) => {
 
         client.sendMail(email, function (err, info) {
           if (err) {
-            console.log(error);
+            console.log(err);
           } else {
             req.flash(
               "error",
@@ -244,6 +253,11 @@ const postReset = (req, res, next) => {
             );
           }
         });
+      })
+      .catch((err) => {
+        const error = new Error("Error with the database");
+        error.httpStatusCode = 500;
+        next(error);
       });
   });
 };
@@ -254,20 +268,26 @@ const getNewPassword = (req, res, next) => {
   User.findOne({
     resetToken: token,
     resetTokenExpiration: { $gt: Date.now() },
-  }).then((user) => {
-    if (!user) {
-      req.flash("error", "this token doesn't exists on our db");
-      return res.redirect("/login");
-    }
+  })
+    .then((user) => {
+      if (!user) {
+        req.flash("error", "this token doesn't exists on our db");
+        return res.redirect("/login");
+      }
 
-    res.render("auth/new-password", {
-      pageTitle: "Reset password",
-      path: "/reset-password",
-      messages: req.flash("error"),
-      userId: user._id,
-      token: token,
+      res.render("auth/new-password", {
+        pageTitle: "Reset password",
+        path: "/reset-password",
+        messages: req.flash("error"),
+        userId: user._id,
+        token: token,
+      });
+    })
+    .catch((err) => {
+      const error = new Error("Error with the database");
+      error.httpStatusCode = 500;
+      next(error);
     });
-  });
 };
 
 const postNewPassword = (req, res, next) => {
@@ -311,6 +331,11 @@ const postNewPassword = (req, res, next) => {
           req.flash("error", "Password succesfully resetted");
         }
       });
+    })
+    .catch((err) => {
+      const error = new Error("Error with the database");
+      error.httpStatusCode = 500;
+      next(error);
     });
 };
 

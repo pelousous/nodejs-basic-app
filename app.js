@@ -64,11 +64,14 @@ app.use((req, res, next) => {
 
   User.findById(req.session.user._id)
     .then((user) => {
+      if (!user) {
+        next();
+      }
       req.user = user;
       next();
     })
     .catch((err) => {
-      throw err;
+      throw new Error(err);
     });
 });
 
@@ -84,7 +87,21 @@ app.use("/admin", adminData.routes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
+app.use("/500", errorController.get500);
+
 app.use(errorController.get404);
+
+// special middleware that take an error as first argument
+// triggered by throwing an error an pass it to next()
+/*
+      EX: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      const error = new Error("Error with the database");
+      error.httpStatusCode = 500;
+      next(error);
+*/
+app.use((err, req, res, next) => {
+  res.redirect("/500");
+});
 
 mongoose
   .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })

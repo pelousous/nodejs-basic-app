@@ -1,5 +1,6 @@
 const Product = require("../models/product");
 const { validationResult } = require("express-validator");
+var mongoose = require("mongoose");
 
 const getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
@@ -46,6 +47,7 @@ const postAddProduct = (req, res, next) => {
     });
   }
   const product = new Product({
+    // _id: mongoose.Types.ObjectId("60e8126d16336433409e7e48"),
     title: req.body.title,
     imageUrl: req.body.imageUrl,
     price: req.body.price,
@@ -53,26 +55,41 @@ const postAddProduct = (req, res, next) => {
     userId: req.session.user,
   });
 
-  product.save();
-  res.redirect("/");
+  product
+    .save()
+    .then((results) => {
+      res.redirect("/");
+    })
+    .catch((err) => {
+      const error = new Error("Error with the database");
+      error.httpStatusCode = 500;
+      next(error);
+    });
 };
 
 const getEditProduct = (req, res, next) => {
   const isEditing = req.query.edit;
   const productId = req.params.productId;
 
-  Product.findById(productId).then((product) => {
-    console.log(product);
-    res.render("admin/edit-product", {
-      pageTitle: "Edit product",
-      path: "admin/edit-product",
-      messages: "",
-      edit: isEditing,
-      product: product,
-      errorsValues: [],
-      isAuthenticated: req.session.isLoggedIn,
+  Product.findById(productId)
+    .then((product) => {
+      console.log(product);
+      throw new Error("dummy error");
+      res.render("admin/edit-product", {
+        pageTitle: "Edit product",
+        path: "admin/edit-product",
+        messages: "",
+        edit: isEditing,
+        product: product,
+        errorsValues: [],
+        isAuthenticated: req.session.isLoggedIn,
+      });
+    })
+    .catch((err) => {
+      const error = new Error("Error with the database");
+      error.httpStatusCode = 500;
+      return next(error);
     });
-  });
 };
 
 const postEditProduct = (req, res, next) => {
@@ -103,31 +120,41 @@ const postEditProduct = (req, res, next) => {
   }
 
   //const product = new Product(title, imageUrl, price, description, id);
-  Product.findById(id).then((product) => {
-    if (product.userId.toString() !== req.user._id.toString()) {
-      return res.redirect("/");
-    }
-    product.title = title;
-    product.imageUrl = imageUrl;
-    product.price = price;
-    product.description = description;
-    return product.save().then((result) => {
-      res.redirect("/admin/products");
+  Product.findById(id)
+    .then((product) => {
+      if (product.userId.toString() !== req.user._id.toString()) {
+        return res.redirect("/");
+      }
+      product.title = title;
+      product.imageUrl = imageUrl;
+      product.price = price;
+      product.description = description;
+      return product.save().then((result) => {
+        res.redirect("/admin/products");
+      });
+    })
+    .catch((err) => {
+      const error = new Error("Error with the database");
+      error.httpStatusCode = 500;
+      next(error);
     });
-  });
 };
 
 const getProducts = (req, res, next) => {
-  const products = Product.find({ userId: req.user._id.toString() }).then(
-    (products) => {
+  const products = Product.find({ userId: req.user._id.toString() })
+    .then((products) => {
       res.render("admin/products", {
         prods: products,
         pageTitle: "All Products",
         path: "/admin/products",
         isAuthenticated: req.session.isLoggedIn,
       });
-    }
-  );
+    })
+    .catch((err) => {
+      const error = new Error("Error with the database");
+      error.httpStatusCode = 500;
+      next(error);
+    });
 };
 
 const postDeleteProduct = (req, res, next) => {
