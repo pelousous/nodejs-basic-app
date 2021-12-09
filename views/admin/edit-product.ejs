@@ -16,7 +16,9 @@
             /admin/update-product
         <% } else { %>
             /admin/add-product
-        <% } %>" method="POST">
+        <% } %>" 
+            enctype="multipart/form-data"
+            method="POST">
             <div class="form-control">
                 <label for="title">Title</label>
                 <input 
@@ -30,13 +32,8 @@
                 >
             </div>
             <div class="form-control">
-                <label for="imageUrl">Image</label>
-                <input type="text" name="imageUrl" id="imageUrl"
-                <% if(errorsValues.find(err => err.param === 'imageUrl')) { %> 
-                    class="invalid"
-                <% } %> 
-                <% if(product) { %>value="<%= product.imageUrl %>" <% } %>
-                >
+                <label for="image">Image</label>
+                <input type="file" name="image" id="image" />
             </div>
             <div class="form-control">
                 <label for="price">Price</label>

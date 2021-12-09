@@ -9,6 +9,32 @@ const User = require("./models/user");
 const csrf = require("csurf");
 const flash = require("connect-flash");
 const dotenv = require("dotenv");
+const multer = require("multer");
+
+// diskstorage = multer storage engine
+const storage = multer.diskStorage({
+  // cb = callback function
+  destination: function (req, file, cb) {
+    cb(null, "./public/uploads/");
+  },
+  // By default, multer removes file extensions so let's add them back
+  filename: function (req, file, cb) {
+    cb(null, new Date().toISOString() + "-" + file.originalname);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  console.log(file);
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
 
 /*
 config will read your .env file, 
@@ -44,7 +70,15 @@ const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 
 app.use(express.static(path.join(__dirname, "public")));
+// we can specify static paths and where to find the file
+// for every call to the specific path
+// added in the first parameter
+app.use(
+  "/public/uploads",
+  express.static(path.join(__dirname, "public/uploads"))
+);
 app.use(express.urlencoded({ extended: false }));
+app.use(multer({ storage: storage, fileFilter: fileFilter }).single("image"));
 
 app.use(
   session({

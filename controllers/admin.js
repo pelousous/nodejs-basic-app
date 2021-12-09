@@ -23,8 +23,10 @@ const postAddProduct = (req, res, next) => {
   //   null,
   //   req.user._id
   // );
+  console.log("request of post ad product");
+  console.log(req.file);
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
+  const imageUrl = req.file;
   const price = req.body.price;
   const description = req.body.description;
   const errors = validationResult(req);
@@ -38,7 +40,6 @@ const postAddProduct = (req, res, next) => {
       messages: errors.array()[0].msg,
       product: {
         title: title,
-        imageUrl: imageUrl,
         price: price,
         description: description,
       },
@@ -46,10 +47,25 @@ const postAddProduct = (req, res, next) => {
       validationErrors: errors.array(),
     });
   }
+  if (!imageUrl) {
+    return res.status(422).render("admin/edit-product", {
+      pageTitle: "Add Product",
+      path: "/admin/add-product",
+      edit: false,
+      messages: "the attached file is not valid or empty",
+      product: {
+        title: title,
+        price: price,
+        description: description,
+      },
+      errorsValues: [],
+      validationErrors: [],
+    });
+  }
   const product = new Product({
     // _id: mongoose.Types.ObjectId("60e8126d16336433409e7e48"),
     title: req.body.title,
-    imageUrl: req.body.imageUrl,
+    imageUrl: imageUrl.path,
     price: req.body.price,
     description: req.body.description.trim(),
     userId: req.session.user,
@@ -74,7 +90,6 @@ const getEditProduct = (req, res, next) => {
   Product.findById(productId)
     .then((product) => {
       console.log(product);
-      throw new Error("dummy error");
       res.render("admin/edit-product", {
         pageTitle: "Edit product",
         path: "admin/edit-product",
@@ -94,7 +109,7 @@ const getEditProduct = (req, res, next) => {
 
 const postEditProduct = (req, res, next) => {
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
+  const imageUrl = req.file;
   const price = req.body.price;
   const description = req.body.description;
   const id = req.body.productId;
@@ -109,7 +124,6 @@ const postEditProduct = (req, res, next) => {
       product: {
         _id: id,
         title: title,
-        imageUrl: imageUrl,
         price: price,
         description: description,
         userId: req.user._id.toString(),
@@ -126,7 +140,9 @@ const postEditProduct = (req, res, next) => {
         return res.redirect("/");
       }
       product.title = title;
-      product.imageUrl = imageUrl;
+      if (imageUrl) {
+        product.imageUrl = imageUrl.path;
+      }
       product.price = price;
       product.description = description;
       return product.save().then((result) => {

@@ -189,7 +189,7 @@ const postSignup = (req, res, next) => {
 
       client.sendMail(email, function (err, info) {
         if (err) {
-          console.log(error);
+          console.log(err);
         } else {
           console.log("Message sent: " + info.response);
         }
@@ -326,7 +326,7 @@ const postNewPassword = (req, res, next) => {
 
       client.sendMail(email, function (err, info) {
         if (err) {
-          console.log(error);
+          console.log(err);
         } else {
           req.flash("error", "Password succesfully resetted");
         }

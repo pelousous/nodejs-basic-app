@@ -18,7 +18,6 @@ router.post(
       .isString()
       .isLength({ min: 5 })
       .trim(),
-    check("imageUrl", "The url in the image field is not valid").isURL().trim(),
     check("price", "The price has to be a currency value").isFloat().trim(),
     check("description", "Description has to be at least 8 characters long")
       .isLength({ min: 8, max: 400 })
@@ -39,7 +38,6 @@ router.post(
     .isLength({ min: 5 })
     .trim()
     .escape(),
-  check("imageUrl", "The url in the image field is not valid").isURL().trim(),
   check("price", "The price has to be a currency value").isCurrency().trim(),
   check("description", "Description has to be at least 8 characters long")
     .isLength({ min: 8, max: 400 })
