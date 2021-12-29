@@ -1,18 +1,48 @@
+const path = require("path");
+const mime = require("mime");
+const fs = require("fs");
+const PDFDocument = require("pdfkit");
+
 const Product = require("../models/product");
 //const Cart = require("../models/cart");
 const Order = require("../models/order");
 
+const ITEMS_PER_PAGE = 1;
+
 const getIndex = (req, res, next) => {
-  const products = Product.find({})
-    .populate("userId")
-    .then((products) => {
-      console.log(req.session.isLoggedIn);
-      res.render("shop/index", {
-        prods: products,
-        pageTitle: "Shop",
-        path: "/",
+  const page = +req.query.page || 1;
+  let totalProducts;
+
+  // const products = Product.find({}).then((products) => {
+  //   res.render("shop/index", {
+  //     prods: products,
+  //     pageTitle: "All Products",
+  //     path: "/",
+  //   });
+  // });
+
+  const products = Product.find({}).then((products) => {
+    totalProducts = products.length;
+
+    Product.find()
+      .skip((page - 1) * ITEMS_PER_PAGE)
+      .limit(ITEMS_PER_PAGE)
+      .then((products) => {
+        res.render("shop/index", {
+          prods: products,
+          pageTitle: "Shop",
+          path: "/",
+          isAuthenticated: req.session.isLoggedIn,
+          currentPage: page,
+          totalProducts: totalProducts,
+          hasNextPage: Math.ceil(totalProducts / ITEMS_PER_PAGE) > page,
+          hasPreviousPage: page > 1,
+          nextPage: page + 1,
+          previousPage: page - 1,
+          lastPage: Math.ceil(totalProducts / ITEMS_PER_PAGE),
+        });
       });
-    });
+  });
 };
 
 const getProducts = (req, res, next) => {
@@ -151,6 +181,67 @@ const postOrder = (req, res, next) => {
     });
 };
 
+const getInvoice = (req, res, next) => {
+  const orderId = req.params.orderId;
+
+  Order.findById(orderId).then((order) => {
+    if (!order) {
+      return next(new Error("no Data found"));
+    }
+
+    if (req.session.user._id.toString() !== order.user.userId.toString()) {
+      return next(new Error("Unauthorized"));
+    }
+
+    const invoicePath = path.join(
+      "data",
+      "invoices",
+      "Invoice-" + orderId + ".pdf"
+    );
+
+    const doc = new PDFDocument();
+    let total = 0;
+
+    const mimetype = mime.lookup(invoicePath);
+    const filename = path.basename(invoicePath);
+
+    res.setHeader("Content-type", mimetype);
+    res.setHeader("Content-disposition", "inline; filename=" + filename);
+
+    doc.pipe(fs.createWriteStream(invoicePath));
+    doc.pipe(res);
+    doc.fontSize(20).text("List of invoices");
+    doc.text("-------------------------------------");
+
+    order.products.map((prod) => {
+      total += prod.product.price * prod.quantity;
+      doc
+        .fontSize(16)
+        .text(
+          prod.product.title +
+            " - quantity: " +
+            prod.quantity +
+            " - price: $" +
+            prod.product.price
+        );
+    });
+
+    doc.text("-----------------------------------");
+    doc.fontSize(20).text("Total price: " + total);
+    doc.end();
+
+    /*
+      res.setHeader("Content-disposition", "attachment; filename=" + filename);
+      res.setHeader("Content-type", mimetype);
+
+      const filestream = fs.createReadStream(invoicePath);
+      filestream.on("open", function () {
+        filestream.pipe(res);
+      });
+    */
+  });
+};
+
 module.exports = {
   getProducts,
   getProduct,
@@ -161,4 +252,5 @@ module.exports = {
   postOrder,
   getCheckout,
   postCartDeleteItem,
+  getInvoice,
 };

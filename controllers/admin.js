@@ -1,6 +1,9 @@
 const Product = require("../models/product");
 const { validationResult } = require("express-validator");
-var mongoose = require("mongoose");
+const mongoose = require("mongoose");
+const fs = require("fs");
+
+const { deleteFile } = require("../util/file");
 
 const getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
@@ -23,8 +26,6 @@ const postAddProduct = (req, res, next) => {
   //   null,
   //   req.user._id
   // );
-  console.log("request of post ad product");
-  console.log(req.file);
   const title = req.body.title;
   const imageUrl = req.file;
   const price = req.body.price;
@@ -89,7 +90,6 @@ const getEditProduct = (req, res, next) => {
 
   Product.findById(productId)
     .then((product) => {
-      console.log(product);
       res.render("admin/edit-product", {
         pageTitle: "Edit product",
         path: "admin/edit-product",
@@ -141,6 +141,7 @@ const postEditProduct = (req, res, next) => {
       }
       product.title = title;
       if (imageUrl) {
+        deleteFile(product.imageUrl);
         product.imageUrl = imageUrl.path;
       }
       product.price = price;
@@ -175,10 +176,22 @@ const getProducts = (req, res, next) => {
 
 const postDeleteProduct = (req, res, next) => {
   const productId = req.body.productId;
-  const price = req.body.price;
-  Product.remove({ _id: productId, userId: req.user._id }, () => {
-    res.redirect("/admin/products");
-  });
+
+  Product.findById(productId)
+    .then((product) => {
+      if (!product) {
+        return next(new Error("product not found! "));
+      }
+      deleteFile(product.imageUrl);
+
+      return Product.remove({ _id: productId, userId: req.user._id });
+    })
+    .then((response) => {
+      res.redirect("/admin/products");
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 module.exports = {
