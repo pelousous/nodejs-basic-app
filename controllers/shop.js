@@ -46,13 +46,39 @@ const getIndex = (req, res, next) => {
 };
 
 const getProducts = (req, res, next) => {
+  const page = +req.query.page || 1;
+  let totalProducts;
+
+  // const products = Product.find({}).then((products) => {
+  //   res.render("shop/index", {
+  //     prods: products,
+  //     pageTitle: "All Products",
+  //     path: "/products",
+  //     isAuthenticated: req.session.isLoggedIn,
+  //   });
+  // });
+
   const products = Product.find({}).then((products) => {
-    res.render("shop/index", {
-      prods: products,
-      pageTitle: "All Products",
-      path: "/products",
-      isAuthenticated: req.session.isLoggedIn,
-    });
+    totalProducts = products.length;
+
+    Product.find()
+      .skip((page - 1) * ITEMS_PER_PAGE)
+      .limit(ITEMS_PER_PAGE)
+      .then((products) => {
+        res.render("shop/index", {
+          prods: products,
+          pageTitle: "Shop",
+          path: "/",
+          isAuthenticated: req.session.isLoggedIn,
+          currentPage: page,
+          totalProducts: totalProducts,
+          hasNextPage: Math.ceil(totalProducts / ITEMS_PER_PAGE) > page,
+          hasPreviousPage: page > 1,
+          nextPage: page + 1,
+          previousPage: page - 1,
+          lastPage: Math.ceil(totalProducts / ITEMS_PER_PAGE),
+        });
+      });
   });
 };
 
